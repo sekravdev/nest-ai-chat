@@ -21,6 +21,10 @@ Note: you can just copy `.env.dist` to your `.env`, it contains variables ready 
 1. Before your first run - make sure `docker/ollama/bootstrap.sh` is executable.
 You can run `make set-permissions` command to grant executables access for the file.
 2. Make sure you've created `.env` file (see Prerequisites)
+
+## Notice
+After you run it under docker dev or prod env - it still may take a few minutes to let LLM model to be pulled and initiated
+
 ## 1. Running in Production Mode
 
 Build and start all services (Nest API, Supabase/PostgREST, Ollama):
