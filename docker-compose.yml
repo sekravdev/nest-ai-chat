@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  nest-app:
+    build:
+      context: .
+      dockerfile: docker/node/Dockerfile
+    container_name: nest-app
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    depends_on:
+      - supabase-db
+      - ollama
+    env_file:
+      - .env
+
+  supabase-db:
+    image: supabase/postgres:15.1.0.63
+    container_name: supabase-db
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "54322:5432"
+    volumes:
+      - supabase-data:/var/lib/postgresql/data
+      - ./supabase/migrations:/docker-entrypoint-initdb.d
+
+  supabase-api:
+    container_name: supabase-api
+    image: postgrest/postgrest:v12.0.1
+    depends_on:
+      - supabase-db
+    environment:
+      PGRST_DB_URI: ${PGRST_DB_URI}
+      PGRST_DB_ANON_ROLE: ${PGRST_DB_ANON_ROLE}
+      PGRST_JWT_SECRET: ${PGRST_JWT_SECRET}
+    ports:
+      - "8000:3000"
+
+  ollama:
+    container_name: ollama
+    build:
+      context: ./docker/ollama
+    ports:
+      - '11434:11434'
+    volumes:
+      - ollama-data:/root/.ollama
+    tty: true
+    restart: unless-stopped
+
+
+volumes:
+  supabase-data:
+  ollama-data:
